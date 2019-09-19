@@ -4,12 +4,13 @@
 from django.conf.urls import url,include
 
 from utils.routes import CustomRouter
-from api.web.search import SearchView
+from api.web.search import SearchView, SuggestView
 
 router=CustomRouter()
 
 
 urlpatterns = [
     url(r'^search/$',SearchView.as_view()),
+    url(r'^suggest/$',SuggestView.as_view()),
     url(r'^',include(router.urls)),
 ]

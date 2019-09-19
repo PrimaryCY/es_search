@@ -7,7 +7,8 @@ Vue.config.productionTip = false
 
 import './static/css/reset.css'
 import 'iview/dist/styles/iview.css'
-import {Input,Button,Message,Notice,Layout,Header,Content,Footer,Page,Tabs,TabPane} from 'iview'
+import {Input,Button,Message,Notice,Layout,Header,Content,Footer,Page,Tabs,TabPane,DropdownMenu,
+  DropdownItem,Dropdown} from 'iview'
 Vue.component(Input.name,Input)
 Vue.component(Button.name,Button)
 Vue.component(Layout.name,Layout)
@@ -17,6 +18,9 @@ Vue.component(Footer.name,Footer)
 Vue.component(Page.name,Page)
 Vue.component(Tabs.name,Tabs)
 Vue.component(TabPane.name,TabPane)
+Vue.component(Dropdown.name,Dropdown)
+Vue.component(DropdownMenu.name,DropdownMenu)
+Vue.component(DropdownItem.name,DropdownItem)
 Vue.prototype.$Message=Message
 Vue.prototype.$Notice=Notice
 

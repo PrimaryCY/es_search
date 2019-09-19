@@ -2,7 +2,7 @@ import axios from './ajax'
 
 
 export const search=(params)=>axios.get('api/web/search/',params)
-
+export const suggest=(params)=>axios.get('api/web/suggest/',params)
 
 /*
 * 上传文件接口

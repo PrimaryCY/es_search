@@ -2,11 +2,25 @@
 	<div class="layout">
 		<Layout>
 			<Header :style="{position: 'fixed', width: '100%'}" style="z-index: 999">
-					<div class="search">
+<!--				<Dropdown trigger="custom" :visible="suggest.length!=0">-->
+				<div class="search" >
 						<Input search enter-button="Search" placeholder="请输入搜索的内容"
 									v-model="input" :maxlength=50 autofocus style="width: 80%;margin: 0 auto"
-									@on-search="searchBtn" />
+									@on-search="searchBtn" @on-change="suggestBtn"/>
 					</div>
+<!--					<DropdownMenu slot="list">-->
+<!--						<DropdownItem v-for="(i,index) in suggest" :key="index">{{i}}</DropdownItem>-->
+<!--					</DropdownMenu>-->
+				<div class="search-select">
+					<transition-group name="itemfade" tag="ul" mode="out-in" v-cloak>
+						<li v-for="(value,index) in suggest" :class="{selectback:index==now}"
+								class="search-select-option search-select-list" @mouseover="selectHover(index)"
+								@click="selectClick(index)" :key="value">
+							{{value}}
+						</li>
+					</transition-group>
+				</div>
+<!--				</Dropdown>-->
 			</Header>
 			<Content :style="{margin: '88px 20px 0', background: '#fff', minHeight: '500px'}">
 					<div v-show="total||flag" class="search_tool">
@@ -74,7 +88,7 @@
 </template>
 
 <script>
-	import {search} from '../api/index'
+	import {search,suggest} from '../api/index'
 
   export default {
     name: "index",
@@ -88,19 +102,35 @@
 
 				inputSize:'width: 60%;',		//搜索框尺寸
 				result:[],						//搜索结果
+				suggest:[],						//搜索建议
+				now:null,							//用户当前停留的搜索建议下标
 				total:undefined,				//搜索结果总数
 				default_img:"https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3885376987,415548851&fm=111&gp=0.jpg",		//默认图
         logo: 'this.src="' + this.default_img + '"'  ,
       }
 		},
 		methods:{
+      async suggestBtn(){
+        if (!this.input.trim()) {
+          this.suggest=[]
+          return null
+				}
+        let params={
+          q:this.input,
+					size:5,
+				}
+        let res=await suggest(params)
+				if(res.data.success){
+					this.suggest=res.data.data
+				}
+			},
       async searchBtn(){
         if(!this.input.trim()){
           return this.$Notice.error({
             title:'未输入搜索内容!',
             duration:1.5,
           })
-				}
+        }
         let params={
           q:this.input,
 					type:this.type,
@@ -113,6 +143,7 @@
 					this.total=res.data.data.total
 					this.flag=true
 				}
+        this._clearSuggest()
         document.documentElement.scrollTop=0
 			},
       // 迅雷复制到剪贴板
@@ -135,6 +166,15 @@
       },
 			// 分类切换
 			tabChange(name){
+        if(!this.input.trim()) {
+          this.flag=false
+					this.result=[]
+					this.total=0
+          return this.$Notice.error({
+            title: '未输入搜索内容!',
+            duration: 1.5,
+          })
+        }
         this.page_offset=0
 				this.page_limit=10
 				this.type=name
@@ -143,9 +183,22 @@
 			defImgError(event){
         event.target.src = this.default_img;
 			},
+			// 翻页时
 			pageChange(page){
         this.page_limit=page
 				this.searchBtn()
+			},
+			// 鼠标移动到搜索建议时
+      selectHover(index) {
+        this.now = index
+      },
+			// 鼠标点击搜索建议时
+      selectClick(index) {
+        this.input = this.suggest[index];
+        this.searchBtn();
+      },
+			_clearSuggest(){
+        this.suggest=[]
 			}
 		},
 		watch:{
@@ -218,4 +271,62 @@
 		margin: 0 auto;
 		width: 460px;
 	}
+	.ivu-dropdown {
+		padding: 25px;
+	}
+
+
+	.search-select li {
+		border: 1px solid #d4d4d4;
+		line-height: 1.2!important;
+		border-top: none;
+		border-bottom: none;
+		background-color: #fff;
+		width: 100%;
+	}
+	.search-select li:last-child{
+		border-bottom-left-radius:20px;
+		border-bottom-right-radius:20px;
+	}
+	.search-select ul:last-child{
+		background-color: #7e8c8d;
+		border-bottom-left-radius:20px;
+		border-bottom-right-radius:20px;
+	}
+
+	.search-select-option {
+		box-sizing: border-box;
+		padding: 7px 10px;
+	}
+	.selectback {
+		background-color: #eee !important;
+		cursor: pointer
+	}
+	.search-select-list {
+		transition: all 0.5s
+	}
+	.itemfade-enter,
+	.itemfade-leave-active {
+		opacity: 0;
+	}
+	.itemfade-leave-active {
+		position: absolute;
+	}
+	.selectback {
+		background-color: #eee !important;
+		cursor: pointer
+	}
+	.search-select {
+		position: relative;
+		top: 25%;
+		margin: 0 auto;
+		box-sizing: border-box;
+		width: 80%;
+
+	}
+	.search-select ul{
+		margin:0;
+		text-align: left;
+		margin-right: 71px;
+		}
 </style>
