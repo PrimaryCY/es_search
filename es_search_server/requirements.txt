@@ -21,7 +21,7 @@ odfpy==1.4.0
 openpyxl==2.6.3
 PyMySQL==0.9.3
 pytz==2019.2
-PyYAML==5.1.2
+PyYAML==5.4
 raven==6.10.0
 redis==3.3.8
 six==1.12.0
